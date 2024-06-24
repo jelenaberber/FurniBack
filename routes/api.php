@@ -6,12 +6,17 @@ use App\Http\Controllers\MessageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Middleware\CheckJwtToken;
 
 Route::controller(ProductController::class)->group(function () {
     Route::get('products', 'index');
     Route::get('products/{id}', 'show');
+});
+
+Route::controller(CategoryController::class)->group(function () {
+    Route::get('categories', 'index');
 });
 
 Route::controller(UserController::class)->group(function () {

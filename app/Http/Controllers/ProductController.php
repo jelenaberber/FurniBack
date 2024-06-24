@@ -12,20 +12,28 @@ class ProductController extends Controller
     {
         $query = Product::query();
 
-        if ($request->has('category')) {
+        if ($request->has('category') && $request->get('category') != 0) {
             $query->where('category_id', $request->input('category'));
         }
 
-        if ($request->get('sort') == 'asc') {
-            $query->orderBy('price');
+        if ($request->has('sort')) {
+            $sortDirection = $request->input('sort');
+            if ($sortDirection === 'asc') {
+                $query->orderBy('price');
+            } elseif ($sortDirection === 'desc') {
+                $query->orderByDesc('price');
+            }
         }
-        elseif ($request->get('sort') == 'desc') {
-            $query->orderByDesc('price');
-        }
-        $products = $query->get();
+
+        $products = $query->get()->map(function ($product) {
+            $product->image = $product->images()->where('front_img', 1)->select('path', 'alt')->first();
+            return $product;
+        });
 
         return response()->json($products);
     }
+
+
 
     public function show($id): JsonResponse
     {
