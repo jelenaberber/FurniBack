@@ -5,6 +5,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Middleware\CheckJwtToken;
 
@@ -24,6 +25,8 @@ Route::controller(UserController::class)->group(function () {
 
 Route::post('/messages', [MessageController::class, 'store']);
 
+Route::post('/order', [OrderController::class, 'store'])->middleware(CheckJwtToken::class);
+
 Route::controller(CartController::class)->group(function () {
     Route::get('cart/addProduct/{id}', 'addProductToCart')->middleware(CheckJwtToken::class);
     Route::get('cart', 'index')->middleware(CheckJwtToken::class);
@@ -40,4 +43,6 @@ Route::middleware([IsAdmin::class])->group(function () {
     Route::post('/products', [UserController::class, 'store']);
     Route::put('/products/{id}', [UserController::class, 'update']);
     Route::delete('/products/{id}', [UserController::class, 'destroy']);
+    Route::get('/orders', [OrderController::class, 'index']);
+    Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 });
