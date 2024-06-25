@@ -14,41 +14,46 @@ class CartController extends Controller
 
     public function addProductToCart($id): JsonResponse
     {
-        $userId = Auth::user()->id;
-        $cart = Cart::where('user_id', $userId)->first();
-        $product = Product::find($id);
+        try {
+            $userId = Auth::user()->id;
+            $cart = Cart::where('user_id', $userId)->first();
+            $product = Product::find($id);
 
-        if(!$cart){
-            $newCart = Cart::create([
-                'user_id' => $userId,
-                'price' => $product->price
-            ]);
+            if (!$cart) {
+                $newCart = Cart::create([
+                    'user_id' => $userId,
+                    'price' => $product->price
+                ]);
 
-            $newProductInCart = CartProduct::create([
-                'cart_id' => $newCart->id,
-                'product_id' => $product->id,
-                'price' => $product->price
-            ]);
-            return response()->json(['success' => 'Successfully added'], 200);
-        }
-        else{
-            $cart->number_of_products = ($cart->number_of_products) + 1;
-            $cart->price = ($cart->price) + $product->price;
-            $cart->save();
-
-            $productAlreadyInCart = CartProduct::where('cart_id', $cart->id)->where('product_id', $id)->first();
-            if($productAlreadyInCart){
-                $productAlreadyInCart->quantity = ($productAlreadyInCart->quantity) + 1;
-                $productAlreadyInCart->save();
-            }
-            else{
                 $newProductInCart = CartProduct::create([
-                    'cart_id' => $cart->id,
+                    'cart_id' => $newCart->id,
                     'product_id' => $product->id,
                     'price' => $product->price
                 ]);
+                return response()->json(['success' => 'Successfully added'], 200);
+            } else {
+                $cart->number_of_products = ($cart->number_of_products) + 1;
+                $cart->price = ($cart->price) + $product->price;
+                $cart->save();
+
+                $productAlreadyInCart = CartProduct::where('cart_id', $cart->id)->where('product_id', $id)->first();
+                if ($productAlreadyInCart) {
+                    $productAlreadyInCart->quantity = ($productAlreadyInCart->quantity) + 1;
+                    $productAlreadyInCart->save();
+                } else {
+                    $newProductInCart = CartProduct::create([
+                        'cart_id' => $cart->id,
+                        'product_id' => $product->id,
+                        'price' => $product->price
+                    ]);
+                }
+                return response()->json(['success' => 'Successfully added'], 200);
             }
-            return response()->json(['success' => 'Successfully added'], 200);
+        } catch (\Exception $e) {
+            // Log the error message
+            Log::error('Error adding product to cart: ' . $e->getMessage());
+            // Return a JSON response with error message
+            return response()->json(['error' => 'An error occurred while adding the product to the cart. Please try again later.'], 500);
         }
     }
 

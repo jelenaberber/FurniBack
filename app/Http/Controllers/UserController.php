@@ -16,33 +16,37 @@ class UserController extends Controller
 //            'email' => 'required|string|email|max:255|unique:users',
 //            'password' => 'required|string|min:6',
 //        ]);
+        $defaultProfileImg = 'avatar.jpg';
         $user = User::create([
             'first_name' => $request->first_name,
             'last_name' => $request->last_name,
             'username' => $request->username,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'profile_img' => $request->profile_img,
+            'profile_img' => $defaultProfileImg,
             'role_id' => '1'
         ]);
 
-        Auth::login($user);
+        $credentials = $request->only('email', 'password');
+        $token = Auth::guard('api')->attempt($credentials);
+
         return response()->json([
             'status' => 'success',
             'message' => 'User created successfully',
             'user' => $user,
             'authorisation' => [
+                'token' => $token,
                 'type' => 'bearer',
             ]
-        ]);
+        ], 201);
     }
 
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
+//        $request->validate([
+//            'email' => 'required|string|email',
+//            'password' => 'required|string',
+//        ]);
 
         $credentials = $request->only('email', 'password');
         $token = Auth::guard('api')->attempt($credentials);

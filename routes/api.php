@@ -33,7 +33,7 @@ Route::post('/messages', [MessageController::class, 'store']);
 Route::post('/order', [OrderController::class, 'store'])->middleware(CheckJwtToken::class);
 
 Route::controller(CartController::class)->group(function () {
-    Route::get('cart/addProduct/{id}', 'addProductToCart')->middleware(CheckJwtToken::class);
+    Route::post('cart/addProduct/{id}', 'addProductToCart')->middleware(CheckJwtToken::class);
     Route::get('cart', 'index')->middleware(CheckJwtToken::class);
     Route::delete('cart/{id}', 'destroy')->middleware(CheckJwtToken::class);
     Route::delete('cart/product/{id}', 'deleteProduct')->middleware(CheckJwtToken::class);
