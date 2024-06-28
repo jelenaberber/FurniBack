@@ -7,6 +7,9 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\TestimonyController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\EmployeeController;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Middleware\CheckJwtToken;
 
@@ -32,22 +35,29 @@ Route::post('/messages', [MessageController::class, 'store']);
 
 Route::post('/order', [OrderController::class, 'store'])->middleware(CheckJwtToken::class);
 
+Route::get('/testimonials', [TestimonyController::class, 'index']);
+
+Route::get('/services', [ServiceController::class, 'index']);
+
+Route::get('/employees', [EmployeeController::class, 'index']);
+
 Route::controller(CartController::class)->group(function () {
-    Route::post('cart/addProduct/{id}', 'addProductToCart')->middleware(CheckJwtToken::class);
+    Route::post('cart/{id}', 'addProductToCart')->middleware(CheckJwtToken::class);
     Route::get('cart', 'index')->middleware(CheckJwtToken::class);
-    Route::delete('cart/{id}', 'destroy')->middleware(CheckJwtToken::class);
-    Route::delete('cart/product/{id}', 'deleteProduct')->middleware(CheckJwtToken::class);
+    Route::delete('cart/{id}', 'deleteProduct')->middleware(CheckJwtToken::class);
+    Route::patch('cart/{id}', 'updateProductQuantity')->middleware(CheckJwtToken::class);
 });
 
 Route::middleware([IsAdmin::class])->group(function () {
     Route::get('/messages', [MessageController::class, 'index']);
     Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
     Route::get('/users', [UserController::class, 'index']);
-    Route::post('/users/{id}', [UserController::class, 'changeRole']);
+    Route::patch('/users/{id}', [UserController::class, 'changeRole']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
-    Route::post('/products', [UserController::class, 'store']);
-    Route::put('/products/{id}', [UserController::class, 'update']);
-    Route::delete('/products/{id}', [UserController::class, 'destroy']);
+    Route::post('/products', [ProductController::class, 'store']);
+    Route::put('/products/{id}', [ProductController::class, 'update']);
+    Route::delete('/admin/products/{id}', [ProductController::class, 'destroy']);
     Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/admin/products', [ProductController::class, 'getAllProductsAdmin']);
     Route::delete('/orders/{id}', [OrderController::class, 'destroy']);
 });

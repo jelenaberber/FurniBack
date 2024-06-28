@@ -10,12 +10,25 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function register(Request $request){
-//        $request->validate([
-//            'name' => 'required|string|max:255',
-//            'email' => 'required|string|email|max:255|unique:users',
-//            'password' => 'required|string|min:6',
-//        ]);
+    public function register(Request $request)
+    {
+        $emailExists = User::where('email', $request->email)->first();
+
+        if ($emailExists) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User with this email already exist',
+            ], 404);
+        }
+
+        $usernameExists = User::where('username', $request->username)->first();
+
+        if ($usernameExists) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User with this username already exist',
+            ], 404);
+        }
         $defaultProfileImg = 'avatar.jpg';
         $user = User::create([
             'first_name' => $request->first_name,
@@ -43,10 +56,20 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
-//        $request->validate([
-//            'email' => 'required|string|email',
-//            'password' => 'required|string',
-//        ]);
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'User with this email does not exist',
+            ], 404);
+        }
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Incorrect password',
+            ], 401);
+        }
 
         $credentials = $request->only('email', 'password');
         $token = Auth::guard('api')->attempt($credentials);
@@ -99,7 +122,9 @@ class UserController extends Controller
 
     public function index(): JsonResponse
     {
-        $users = User::get();
+        $users = User::with('role:id,name')->get([
+            'id', 'first_name', 'last_name', 'username', 'email', 'role_id'
+        ]);
 
         return response()->json($users);
     }

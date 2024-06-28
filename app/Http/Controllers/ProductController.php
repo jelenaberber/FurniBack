@@ -43,14 +43,17 @@ class ProductController extends Controller
         }
         return response()->json($product);
     }
+
+    public function getAllProductsAdmin(): JsonResponse
+    {
+        $products = Product::leftJoin('categories', 'products.category_id', '=', 'categories.id')
+            ->select('products.id', 'products.name', 'products.price', 'products.available', 'categories.name as category')
+            ->get();
+
+        return response()->json($products);
+    }
     public function store(Request $request): JsonResponse
     {
-//        $request->validate([
-//            'name' => 'required|string|max:40',
-//            'category_id' => 'required|exists:categories,id',
-//            'description' => 'required|string|max:255',
-//            'price' => 'required',
-//        ]);
         $product = Product::create([
             'name' => $request->name,
             'category_id' => $request->category_id,
