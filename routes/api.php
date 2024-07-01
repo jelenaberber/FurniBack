@@ -56,6 +56,7 @@ Route::middleware([IsAdmin::class])->group(function () {
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/products/{id}', [ProductController::class, 'update']);
+    Route::put('/admin/products/{id}', [ProductController::class, 'changeAvailability']);
     Route::delete('/admin/products/{id}', [ProductController::class, 'destroy']);
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/admin/products', [ProductController::class, 'getAllProductsAdmin']);

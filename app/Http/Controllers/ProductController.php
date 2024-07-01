@@ -91,4 +91,19 @@ class ProductController extends Controller
         return response()->json($product);
     }
 
+    public function changeAvailability($id): JsonResponse
+    {
+        $product = Product::findOrFail($id);
+
+        if ($product->available == 1) {
+            $product->available = 0;
+        } elseif ($product->available == 0) {
+            $product->available = 1;
+        }
+
+        $product->save();
+
+        return response()->json(['message' => 'Availability changed successfully', 'product' => $product]);
+    }
+
 }
