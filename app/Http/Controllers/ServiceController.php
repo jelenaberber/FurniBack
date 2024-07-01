@@ -48,7 +48,7 @@ class ServiceController extends Controller
             return response()->json(['service' => 'Service not found'], 404);
         }
 
-        $testimony->delete();
+        $service->delete();
         return response()->json(['service' => 'Service deleted']);
     }
 
