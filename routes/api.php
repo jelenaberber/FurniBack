@@ -15,7 +15,6 @@ use App\Http\Middleware\CheckJwtToken;
 
 Route::controller(ProductController::class)->group(function () {
     Route::get('products', 'index');
-    Route::get('products/{id}', 'show');
 });
 
 Route::controller(CategoryController::class)->group(function () {
@@ -54,9 +53,10 @@ Route::middleware([IsAdmin::class])->group(function () {
     Route::get('/users', [UserController::class, 'index']);
     Route::patch('/users/{id}', [UserController::class, 'changeRole']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
-    Route::post('/products', [ProductController::class, 'store']);
-    Route::put('/products/{id}', [ProductController::class, 'update']);
-    Route::put('/admin/products/{id}', [ProductController::class, 'changeAvailability']);
+    Route::get('admin/products/{id}', [ProductController::class, 'show']);
+    Route::post('/admin/products', [ProductController::class, 'store']);
+    Route::put('/admin/products/{id}', [ProductController::class, 'update']);
+    Route::patch('/admin/products/{id}', [ProductController::class, 'changeAvailability']);
     Route::delete('/admin/products/{id}', [ProductController::class, 'destroy']);
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/admin/products', [ProductController::class, 'getAllProductsAdmin']);

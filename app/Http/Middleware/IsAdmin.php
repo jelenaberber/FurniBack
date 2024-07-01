@@ -21,7 +21,6 @@ class IsAdmin
             $tokenPayload = JWTAuth::parseToken()->getPayload();
 
             $roleId = $tokenPayload->get('role_id');
-
             if ($roleId !== 2) {
                 return response()->json(['error' => 'Forbidden - Admins only'], 403);
             }

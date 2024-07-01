@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Image;
 use App\Models\Product;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -54,6 +55,13 @@ class ProductController extends Controller
     }
     public function store(Request $request): JsonResponse
     {
+        $alreadyExists = Product::where('name', $request->name)->exists();
+        if($alreadyExists){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'product with this name already exists.',
+            ], 401);
+        }
         $product = Product::create([
             'name' => $request->name,
             'category_id' => $request->category_id,
@@ -61,7 +69,17 @@ class ProductController extends Controller
             'price' => $request->price
         ]);
 
-        return response()->json($product, 201);
+        Image::create([
+            'product_id' => $product->id,
+            'path' => 'Nordic-chair.jpg',
+            'alt' => $request->name
+        ]);
+
+        return response()->json([
+            'status' => 'created',
+            'message' => 'Successfully added new product',
+            'product' => $product
+        ], 201);
     }
     public function destroy($id)
     {
@@ -82,13 +100,28 @@ class ProductController extends Controller
             return response()->json(['message' => 'Product not found'], 404);
         }
 
+        $alreadyExists = Product::where('name', $request->name)
+            ->where('id', '!=', $id)
+            ->exists();
+
+        if ($alreadyExists) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Product with this name already exists.',
+            ], 401);
+        }
+
         $product->update([
             'name' => $request->name,
             'category_id' => $request->category_id,
             'description' => $request->description,
             'price' => $request->price
         ]);
-        return response()->json($product);
+        return response()->json([
+            'status' => 'updated',
+            'message' => 'Successfully changed product',
+            'product' => $product
+        ], 200);
     }
 
     public function changeAvailability($id): JsonResponse
@@ -103,7 +136,7 @@ class ProductController extends Controller
 
         $product->save();
 
-        return response()->json(['message' => 'Availability changed successfully', 'product' => $product]);
+        return response()->json(['message' => 'Availability changed successfully']);
     }
 
 }
